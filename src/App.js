@@ -1,22 +1,34 @@
 import React, { Component } from 'react'
 import './App.css'
-import Form from './Form'
-import Order from './Order'
+import Form from './components/Form'
+import Order from './components/Order'
 
 class App extends Component {
-  state: {
+  state = {
     orders: []
   }
 
   addOrder = (order) => {
-    this.setState({
-      orders: this.state.orders.concat(order)
+    fetch('/orders', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(order)
+    })
+    .then(res => res.json())
+    .then(newOrder => {
+      this.setState({
+        orders: this.state.orders.concat(newOrder)
+      }, () => console.log(this.state))
+
     })
   }
 
   render() {
     const orders = this.state.orders.map( (order, idx) => {
-      <Order key={idx} {...order} />
+      return <Order key={idx} {...order} />
     })
 
     return (
@@ -25,7 +37,7 @@ class App extends Component {
           <img src={ require('./images/logo.png') } className="App-logo" alt="logo" />
         </header>
 
-        <Form />
+        <Form addOrder={this.addOrder} />
 
         <div className="ui raised container segment">
           <h1 className="ui block header">All Orders</h1>
